@@ -64,6 +64,11 @@ class NStack implements ProviderInterface
     ];
 
     /**
+     * @var int
+     */
+    protected $cacheTime;
+
+    /**
      * NStack Constructor
      *
      * @access public
@@ -81,6 +86,9 @@ class NStack implements ProviderInterface
 
         // Set storage
         $this->storage = config('nodes.translate.nstack.storage', 'cache');
+
+        // Set cache time
+        $this->cacheTime = config('nodes.translate.nstack.cacheTime', 600);
 
         // Check if storage is supported
         if(!in_array($this->storage, $this->supportedStorages)) {
@@ -343,7 +351,7 @@ class NStack implements ProviderInterface
                 $data = json_decode($data);
 
                 // Make sure to the key is there and data is fresh
-                if(empty($data->STORED_UNIX) || (time() - $data->STORED_UNIX) > 600) {
+                if(empty($data->STORED_UNIX) || (time() - $data->STORED_UNIX) > $this->cacheTime) {
                     return false;
                 }
 
@@ -365,7 +373,7 @@ class NStack implements ProviderInterface
     protected function putToStorage($locale, $platform, $data) {
         switch ($this->storage) {
             case 'cache':
-                return \Cache::put('nodes.translate_locale_' . $locale . '_platform_' . $platform, $data, 600);
+                return \Cache::put('nodes.translate_locale_' . $locale . '_platform_' . $platform, $data, $this->cacheTime);
                 break;
             case 'publicFolder':
                 // Create path and file name
