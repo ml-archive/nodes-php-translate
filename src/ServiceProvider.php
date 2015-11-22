@@ -14,7 +14,7 @@ use Nodes\Translate\Support\Facades\Translate;
 class ServiceProvider extends NodesServiceProvider
 {
 
-//    protected $defer = true;
+    protected $defer = true;
 
     /**
      * Register the service provider.
