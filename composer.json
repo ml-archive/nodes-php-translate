@@ -23,7 +23,10 @@
     "autoload": {
         "psr-4": {
            "Nodes\\Translate\\": "src"
-        }
+        },
+        "files": [
+          "src/Support/Helpers/Translate.php",
+        ]
     },
     "minimum-stability": "stable"
 }

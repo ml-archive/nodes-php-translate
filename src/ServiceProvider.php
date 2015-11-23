@@ -27,7 +27,6 @@ class ServiceProvider extends NodesServiceProvider
     {
         $this->registerManager();
         $this->setupBindings();
-        $this->loadHelpers(__DIR__ . DIRECTORY_SEPARATOR . 'Support' . DIRECTORY_SEPARATOR . 'Helpers' . DIRECTORY_SEPARATOR);
         $this->registerFacade();
     }
 
