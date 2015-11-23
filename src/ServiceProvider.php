@@ -4,7 +4,6 @@ namespace Nodes\Translate;
 use Illuminate\Foundation\AliasLoader;
 use Nodes\AbstractServiceProvider as NodesServiceProvider;
 use Nodes\Translate\Support\Facades\Translate;
-
 /**
  * Class ServiceProvider
  * @author  Casper Rasmussen <cr@nodes.dk>
@@ -13,8 +12,11 @@ use Nodes\Translate\Support\Facades\Translate;
  */
 class ServiceProvider extends NodesServiceProvider
 {
-
+    /**
+     * @var bool
+     */
     protected $defer = true;
+
 
     /**
      * Register the service provider.
