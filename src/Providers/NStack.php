@@ -88,7 +88,7 @@ class NStack implements ProviderInterface
         $this->storage = config('nodes.translate.nstack.storage', 'cache');
 
         // Set cache time
-        $this->cacheTime = config('nodes.translate.nstack.cacheTime', 600);
+        $this->cacheTime = config('nodes.translate.nstack.lifetime', 600);
 
         // Check if storage is supported
         if(!in_array($this->storage, $this->supportedStorages)) {

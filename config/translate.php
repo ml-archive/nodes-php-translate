@@ -8,11 +8,10 @@ return [
     | Load provider that should handle the translations
     |
     */
-    'provider' => function($app) {
+    'provider' => function ($app) {
         // Load NStack provider
         return new \Nodes\Translate\Provider\NStack;
     },
-
     /*
     |--------------------------------------------------------------------------
     | NStack settings
@@ -29,6 +28,17 @@ return [
         |
         */
         'storage' => 'cache',
+
+        /*
+        |--------------------------------------------------------------------------
+        | cacheTime
+        |--------------------------------------------------------------------------
+        |
+        | Set cache time in seconds
+        |
+        */
+        'lifetime' => 600, // 10min
+
         /*
         |--------------------------------------------------------------------------
         | URL of NStack
