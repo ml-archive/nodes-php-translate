@@ -17,7 +17,6 @@ class ServiceProvider extends NodesServiceProvider
      */
     protected $defer = false;
 
-
     /**
      * Register the service provider.
      *
