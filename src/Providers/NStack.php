@@ -1,11 +1,10 @@
 <?php
-namespace Nodes\Translate\Provider;
+namespace Nodes\Translate\Providers;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Nodes\Translate\Exception\UnsupportedStorageException;
-use Nodes\Translate\ProviderInterface;
 use Nodes\Translate\Exception\InvalidKeyException;
+use Nodes\Translate\Exception\UnsupportedStorageException;
 use Nodes\Translate\Exception\MissingCredentialsException;
 
 /**
@@ -91,7 +90,7 @@ class NStack implements ProviderInterface
         $this->cacheTime = config('nodes.translate.nstack.lifetime', 600);
 
         // Check if storage is supported
-        if(!in_array($this->storage, $this->supportedStorages)) {
+        if (!in_array($this->storage, $this->supportedStorages)) {
             throw new UnsupportedStorageException($this->storage . ' is not supported');
         }
     }
@@ -112,7 +111,7 @@ class NStack implements ProviderInterface
     public function get($key, $replacements = [], $locale = null, $platform = null)
     {
         // We need to have a locale set for the data structure
-        if(empty($locale) || !is_string($locale)) {
+        if (empty($locale) || !is_string($locale)) {
             $locale = 'default';
         }
 
@@ -343,13 +342,13 @@ class NStack implements ProviderInterface
             case 'publicFolder':
                 // Create path and file name
                 $path = public_path('translate') . DIRECTORY_SEPARATOR . $platform . DIRECTORY_SEPARATOR;
-                $fileName =  $locale . '.txt';
+                $fileName = $locale . '.txt';
 
                 // Try to stream
                 $data = @file_get_contents($path . $fileName);
 
                 // Fail if empty
-                if(!$data) {
+                if (!$data) {
                     return false;
                 }
 
@@ -357,7 +356,7 @@ class NStack implements ProviderInterface
                 $data = json_decode($data);
 
                 // Make sure to the key is there and data is fresh
-                if(empty($data->STORED_UNIX) || (time() - $data->STORED_UNIX) > $this->cacheTime) {
+                if (empty($data->STORED_UNIX) || (time() - $data->STORED_UNIX) > $this->cacheTime) {
                     return false;
                 }
 
@@ -376,7 +375,8 @@ class NStack implements ProviderInterface
      * @param $data
      * @return bool|void
      */
-    protected function putToStorage($locale, $platform, $data) {
+    protected function putToStorage($locale, $platform, $data)
+    {
         switch ($this->storage) {
             case 'cache':
                 return \Cache::put('nodes.translate_locale_' . $locale . '_platform_' . $platform, $data, $this->cacheTime);
@@ -384,7 +384,7 @@ class NStack implements ProviderInterface
             case 'publicFolder':
                 // Create path and file name
                 $path = public_path('translate') . DIRECTORY_SEPARATOR . $platform . DIRECTORY_SEPARATOR;
-                $fileName =  $locale . '.txt';
+                $fileName = $locale . '.txt';
 
                 // Create folder if it does not exist
                 if (!file_exists($path)) {

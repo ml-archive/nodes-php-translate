@@ -10,7 +10,7 @@ return [
     */
     'provider' => function ($app) {
         // Load NStack provider
-        return new \Nodes\Translate\Provider\NStack;
+        return new \Nodes\Translate\Providers\NStack;
     },
     /*
     |--------------------------------------------------------------------------

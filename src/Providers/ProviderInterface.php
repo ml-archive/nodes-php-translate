@@ -1,5 +1,5 @@
 <?php
-namespace Nodes\Translate;
+namespace Nodes\Translate\Providers;
 
 /**
  * Interface ProviderInterface
@@ -21,7 +21,7 @@ interface ProviderInterface
      * @param  string $locale
      * @param  string $platform
      * @return string
-     * @throws \Nodes\Translate\Exception\TranslateInvalidKeyException
+     * @throws \Nodes\Translate\Exception\InvalidKeyException
      */
     public function get($key, $replacements = [], $locale = null, $platform = null);
 }
