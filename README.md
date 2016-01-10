@@ -54,7 +54,7 @@ Copy the config file from vendor/nodes/translate/config to config/nodes
 
 ## Usage
 
-###Global functions
+###Global function
 
 ```php
 translate($key, $replacements = [], $locale = null, $platform = null)
@@ -63,7 +63,6 @@ translate($key, $replacements = [], $locale = null, $platform = null)
 ###Facade
 
 ```php
-Translate::get($key, $replacements = [], $locale = null, $platform = null)
 \NodesTranslate::get($key, $replacements = [], $locale = null, $platform = null) (alias)
 ```
 
