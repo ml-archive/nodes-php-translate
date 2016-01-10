@@ -111,14 +111,11 @@ class NStack implements ProviderInterface
      */
     public function get($key, $replacements = [], $locale = null, $platform = null)
     {
-<<<<<<< HEAD
         // We need to have a locale set for the data structure
         if(empty($locale) || !is_string($locale)) {
             $locale = 'default';
         }
 
-=======
->>>>>>> 3694388f6d2fd40cb76a92bd7744660c61b483b3
         // Load translations
         $translations = !$this->failed ? $this->loadTranslations($locale, $platform) : null;
 
@@ -147,11 +144,7 @@ class NStack implements ProviderInterface
         //
         // If key is not found or value is empty
         // we'll return the key untranslated instead.
-<<<<<<< HEAD
         $translatedValue = $this->translateKey($keyWithSection, $locale);
-=======
-        $translatedValue = $this->translateKey($keyWithSection);
->>>>>>> 3694388f6d2fd40cb76a92bd7744660c61b483b3
         if (empty($translatedValue)) {
             return $key;
         }
@@ -168,35 +161,20 @@ class NStack implements ProviderInterface
      * @param  array $keyWithSection
      * @return string
      */
-<<<<<<< HEAD
     protected function translateKey(array $keyWithSection, $locale)
     {
         // Check if section exists within our translations
         if (!array_key_exists($keyWithSection[0], $this->data[$locale])) {
-=======
-    protected function translateKey(array $keyWithSection)
-    {
-        // Check if section exists within our translations
-        if (!array_key_exists($keyWithSection[0], $this->data)) {
->>>>>>> 3694388f6d2fd40cb76a92bd7744660c61b483b3
             return null;
         }
 
         // Check if key exists within section
-<<<<<<< HEAD
         if (!array_key_exists($keyWithSection[1], $this->data[$locale]->{$keyWithSection[0]})) {
-=======
-        if (!array_key_exists($keyWithSection[1], $this->data->{$keyWithSection[0]})) {
->>>>>>> 3694388f6d2fd40cb76a92bd7744660c61b483b3
             return null;
         }
 
         // Return translated value
-<<<<<<< HEAD
         return $this->data[$locale]->{$keyWithSection[0]}->{$keyWithSection[1]};
-=======
-        return $this->data->{$keyWithSection[0]}->{$keyWithSection[1]};
->>>>>>> 3694388f6d2fd40cb76a92bd7744660c61b483b3
     }
 
     /**
@@ -229,7 +207,6 @@ class NStack implements ProviderInterface
      * @param  string $platform
      * @return array
      */
-<<<<<<< HEAD
     protected function loadTranslations($locale = 'default', $platform = null)
     {
         // We've already loaded translations
@@ -239,16 +216,6 @@ class NStack implements ProviderInterface
         }
 
 
-=======
-    protected function loadTranslations($locale = null, $platform = null)
-    {
-        // We've already loaded translations
-        // so we'll just return the same data again.
-        if (!empty($this->data)) {
-            return $this->data;
-        }
-
->>>>>>> 3694388f6d2fd40cb76a92bd7744660c61b483b3
         // Add fallback value to locale and platform
         $locale = !empty($locale) ? $locale : $this->defaults['locale'];
         $platform = !empty($platform) ? $platform : $this->defaults['platform'];
@@ -256,11 +223,7 @@ class NStack implements ProviderInterface
         // If our application is in debug mode
         // we want to bypass the caching of translations
         if (env('APP_DEBUG')) {
-<<<<<<< HEAD
             return $this->data[$locale] = $this->request($locale, $platform);
-=======
-            return $this->data = $this->request($locale, $platform);
->>>>>>> 3694388f6d2fd40cb76a92bd7744660c61b483b3
         }
 
         // Retrieve translations from storage.
@@ -268,7 +231,6 @@ class NStack implements ProviderInterface
         // If storage is empty or expired,
         // we'll request the translations from NStack
         // and re-build the cache with the received data.
-<<<<<<< HEAD
         $data[$locale] = $this->readFromStorage($locale, $platform);
         if (empty($data[$locale])) {
             // Request translations from NStack
@@ -277,16 +239,6 @@ class NStack implements ProviderInterface
             // If we didn't receive any data
             // mark current request as failed
             if (empty($data[$locale])) {
-=======
-        $data = $this->readFromStorage($locale, $platform);
-        if (empty($data)) {
-            // Request translations from NStack
-            $data = $this->request($locale, $platform);
-
-            // If we didn't receive any data
-            // mark current request as failed
-            if (empty($data)) {
->>>>>>> 3694388f6d2fd40cb76a92bd7744660c61b483b3
                 $this->failed = true;
                 return null;
             }
@@ -296,11 +248,7 @@ class NStack implements ProviderInterface
         }
 
         // Set and return found translations
-<<<<<<< HEAD
         return $this->data[$locale] = $data;
-=======
-        return $this->data = $data;
->>>>>>> 3694388f6d2fd40cb76a92bd7744660c61b483b3
     }
 
     /**
