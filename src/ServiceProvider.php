@@ -12,14 +12,17 @@ use Nodes\AbstractServiceProvider as NodesServiceProvider;
 class ServiceProvider extends NodesServiceProvider
 {
     /**
-     * @var bool
+     * Indicates if loading of the provider is deferred.
+     *
+     * @var boolean
      */
-    protected $defer = false; // @TODO
+    protected $defer = true;
 
     /**
-     * Register the service provider.
+     * Register the service provider
      *
      * @author Casper Rasmussen <cr@nodes.dk>
+     *
      * @access public
      * @return void
      */
@@ -38,21 +41,34 @@ class ServiceProvider extends NodesServiceProvider
      */
     protected function setupBindings()
     {
-        $this->app->bind('Nodes\Translate\Manager', function ($app) {
+        $this->app->bind(\Nodes\Translate\Manager::class, function ($app) {
             return $app['nodes.translate'];
         });
     }
 
     /**
+     * Register Translate Manager
+     *
      * @author Casper Rasmussen <cr@nodes.dk>
+     *
+     * @access public
+     * @return void
      */
     public function registerManager()
     {
-        $this->app->bindShared('nodes.translate', function ($app) {
-
+        $this->app->singleton('nodes.translate', function ($app) {
             $provider = call_user_func(config('nodes.translate.provider'), $app);
-
             return new Manager($provider);
         });
+    }
+
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return ['nodes.translate'];
     }
 }
