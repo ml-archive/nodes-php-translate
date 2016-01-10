@@ -111,6 +111,11 @@ class NStack implements ProviderInterface
      */
     public function get($key, $replacements = [], $locale = null, $platform = null)
     {
+        // We need to have a locale set for the data structure
+        if(empty($locale) || !is_string($locale)) {
+            $locale = 'default';
+        }
+
         // Load translations
         $translations = !$this->failed ? $this->loadTranslations($locale, $platform) : null;
 
@@ -139,7 +144,7 @@ class NStack implements ProviderInterface
         //
         // If key is not found or value is empty
         // we'll return the key untranslated instead.
-        $translatedValue = $this->translateKey($keyWithSection);
+        $translatedValue = $this->translateKey($keyWithSection, $locale);
         if (empty($translatedValue)) {
             return $key;
         }
@@ -156,20 +161,20 @@ class NStack implements ProviderInterface
      * @param  array $keyWithSection
      * @return string
      */
-    protected function translateKey(array $keyWithSection)
+    protected function translateKey(array $keyWithSection, $locale)
     {
         // Check if section exists within our translations
-        if (!array_key_exists($keyWithSection[0], $this->data)) {
+        if (!array_key_exists($keyWithSection[0], $this->data[$locale])) {
             return null;
         }
 
         // Check if key exists within section
-        if (!array_key_exists($keyWithSection[1], $this->data->{$keyWithSection[0]})) {
+        if (!array_key_exists($keyWithSection[1], $this->data[$locale]->{$keyWithSection[0]})) {
             return null;
         }
 
         // Return translated value
-        return $this->data->{$keyWithSection[0]}->{$keyWithSection[1]};
+        return $this->data[$locale]->{$keyWithSection[0]}->{$keyWithSection[1]};
     }
 
     /**
@@ -202,13 +207,14 @@ class NStack implements ProviderInterface
      * @param  string $platform
      * @return array
      */
-    protected function loadTranslations($locale = null, $platform = null)
+    protected function loadTranslations($locale = 'default', $platform = null)
     {
         // We've already loaded translations
         // so we'll just return the same data again.
-        if (!empty($this->data)) {
-            return $this->data;
+        if (!empty($this->data[$locale])) {
+            return $this->data[$locale];
         }
+
 
         // Add fallback value to locale and platform
         $locale = !empty($locale) ? $locale : $this->defaults['locale'];
@@ -217,7 +223,7 @@ class NStack implements ProviderInterface
         // If our application is in debug mode
         // we want to bypass the caching of translations
         if (env('APP_DEBUG')) {
-            return $this->data = $this->request($locale, $platform);
+            return $this->data[$locale] = $this->request($locale, $platform);
         }
 
         // Retrieve translations from storage.
@@ -225,14 +231,14 @@ class NStack implements ProviderInterface
         // If storage is empty or expired,
         // we'll request the translations from NStack
         // and re-build the cache with the received data.
-        $data = $this->readFromStorage($locale, $platform);
-        if (empty($data)) {
+        $data[$locale] = $this->readFromStorage($locale, $platform);
+        if (empty($data[$locale])) {
             // Request translations from NStack
-            $data = $this->request($locale, $platform);
+            $data[$locale] = $this->request($locale, $platform);
 
             // If we didn't receive any data
             // mark current request as failed
-            if (empty($data)) {
+            if (empty($data[$locale])) {
                 $this->failed = true;
                 return null;
             }
@@ -242,7 +248,7 @@ class NStack implements ProviderInterface
         }
 
         // Set and return found translations
-        return $this->data = $data;
+        return $this->data[$locale] = $data;
     }
 
     /**
