@@ -2,9 +2,14 @@
 
 ##Install by adding
 
-#Set up service provider
+#Set up service provider in config/app.php
 ```php
 Nodes\Translate\ServiceProvider::class
+```
+
+#Set up alias in config/app.php
+```php
+'NodesTranslate' => Nodes\Translate\Support\Facades\Translate::class
 ```
 
 #Copy the config file
@@ -31,6 +36,7 @@ translate($key, $replacements = [], $locale = null, $platform = null)
 #Facade
 
 ```php
-\Translate::get($key, $replacements = [], $locale = null, $platform = null)
+Translate::get($key, $replacements = [], $locale = null, $platform = null)
+\NodesTranslate::get($key, $replacements = [], $locale = null, $platform = null) (alias)
 ```
 

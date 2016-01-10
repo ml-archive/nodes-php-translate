@@ -1,9 +1,8 @@
 <?php
 namespace Nodes\Translate;
 
-use Illuminate\Foundation\AliasLoader;
 use Nodes\AbstractServiceProvider as NodesServiceProvider;
-use Nodes\Translate\Support\Facades\Translate;
+
 /**
  * Class ServiceProvider
  * @author  Casper Rasmussen <cr@nodes.dk>
@@ -15,7 +14,7 @@ class ServiceProvider extends NodesServiceProvider
     /**
      * @var bool
      */
-    protected $defer = false;
+    protected $defer = false; // @TODO
 
     /**
      * Register the service provider.
@@ -28,7 +27,6 @@ class ServiceProvider extends NodesServiceProvider
     {
         $this->registerManager();
         $this->setupBindings();
-        $this->registerFacade();
     }
 
     /**
@@ -55,17 +53,6 @@ class ServiceProvider extends NodesServiceProvider
             $provider = call_user_func(config('nodes.translate.provider'), $app);
 
             return new Manager($provider);
-        });
-    }
-
-    /**
-     * @author Casper Rasmussen <cr@nodes.dk>
-     */
-    public function registerFacade()
-    {
-        $this->app->booting(function () {
-            $loader = AliasLoader::getInstance();
-            $loader->alias('Translate', Translate::class);
         });
     }
 }

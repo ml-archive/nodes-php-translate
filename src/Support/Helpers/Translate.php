@@ -15,6 +15,6 @@ if (!function_exists('translate')) {
      * @return string
      */
     function translate($key, $replacements = [], $locale = null, $platform = null) {
-        return app(Nodes\Translate\Manager::class)->get($key, $replacements, $locale, $platform);
+        return \NodesTranslate::get($key, $replacements, $locale, $platform);
     }
 }
