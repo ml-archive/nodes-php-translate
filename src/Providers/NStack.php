@@ -230,14 +230,14 @@ class NStack implements ProviderInterface
         // If storage is empty or expired,
         // we'll request the translations from NStack
         // and re-build the cache with the received data.
-        $data[$locale] = $this->readFromStorage($locale, $platform);
-        if (empty($data[$locale])) {
+        $data = $this->readFromStorage($locale, $platform);
+        if (empty($data)) {
             // Request translations from NStack
-            $data[$locale] = $this->request($locale, $platform);
+            $data = $this->request($locale, $platform);
 
             // If we didn't receive any data
             // mark current request as failed
-            if (empty($data[$locale])) {
+            if (empty($data)) {
                 $this->failed = true;
                 return null;
             }
@@ -247,7 +247,9 @@ class NStack implements ProviderInterface
         }
 
         // Set and return found translations
-        return $this->data[$locale] = $data;
+        $this->data[$locale] = $data;
+
+        return $data;
     }
 
     /**
