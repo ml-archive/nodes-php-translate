@@ -310,8 +310,8 @@ class NStack implements ProviderInterface
                 'X-Rest-Api-Key' => $credentials['restKey'],
                 'Accept-Language' => $locale
             ],
-            'timeout' => 5,
-            'connect_timeout' => 3,
+            'timeout' => 15,
+            'connect_timeout' => 10,
             'verify' => false
         ]);
 
