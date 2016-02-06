@@ -1,7 +1,7 @@
 <?php
 namespace Nodes\Translate;
 
-use Nodes\AbstractServiceProvider as NodesServiceProvider;
+use Nodes\AbstractServiceProvider;
 
 /**
  * Class ServiceProvider
@@ -9,8 +9,33 @@ use Nodes\AbstractServiceProvider as NodesServiceProvider;
  *
  * @package Nodes\Translate
  */
-class ServiceProvider extends NodesServiceProvider
+class ServiceProvider extends AbstractServiceProvider
 {
+    /**
+     * Package name
+     *
+     * @var string
+     */
+    protected $package = 'translate';
+
+    /**
+     * Facades to install
+     *
+     * @var array
+     */
+    protected $facades = [
+        'NodesTranslate' => \Nodes\Translate\Support\Facades\Translate::class
+    ];
+
+    /**
+     * Array of configs to copy
+     *
+     * @var array
+     */
+    protected $configs = [
+        'config/translate.php' => 'config/nodes/translate.php'
+    ];
+
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -28,6 +53,8 @@ class ServiceProvider extends NodesServiceProvider
      */
     public function register()
     {
+        parent::register();
+
         $this->registerManager();
         $this->setupBindings();
     }
