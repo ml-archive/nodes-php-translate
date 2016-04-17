@@ -238,7 +238,7 @@ class NStack implements ProviderInterface
         // If our application is in debug mode
         // we want to bypass the caching of translations
         if (env('APP_DEBUG')) {
-            return $this->data[$locale] = $this->request($locale, $platform);
+//            return $this->data[$locale] = $this->request($locale, $platform);
         }
 
         // Retrieve translations from storage.
@@ -247,10 +247,11 @@ class NStack implements ProviderInterface
         // we'll request the translations from NStack
         // and re-build the cache with the received data.
         $data = $this->readFromStorage($locale, $platform);
+
         if (empty($data)) {
             // Request translations from NStack
-            $data = $this->request($locale, $platform);
 
+            $data = $this->request($locale, $platform);
             // If we didn't receive any data
             // mark current request as failed
             if (empty($data)) {
@@ -348,7 +349,7 @@ class NStack implements ProviderInterface
             }
 
             // Set network flag
-            $this->usedNetwork;
+            $this->usedNetwork = true;
 
             return $content->data;
         } catch (GuzzleException $e) {
@@ -447,10 +448,12 @@ class NStack implements ProviderInterface
      */
     protected function clearFromStorage($locale, $platform)
     {
+        $platform = !empty($platform) ? $platform : $this->defaults['platform'];
+
         $this->data = [];
         switch ($this->storage) {
             case 'cache':
-                \Cache::forget('nodes.translate_locale_' . $locale . '_platform_' . $platform, []);
+                \Cache::forget('nodes.translate_locale_' . $locale . '_platform_' . $platform);
                 break;
             case 'publicFolder':
                 // Create path and file name
