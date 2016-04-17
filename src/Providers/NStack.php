@@ -50,6 +50,13 @@ class NStack implements ProviderInterface
     protected $failed = false;
 
     /**
+     * Did provider look up in NStack in this request
+     *
+     * @var bool
+     */
+    protected $usedNetwork = false;
+
+    /**
      * @var string
      */
     protected $storage = 'cache';
@@ -59,7 +66,7 @@ class NStack implements ProviderInterface
      */
     protected $supportedStorages = [
         'cache',
-        'publicFolder'
+        'publicFolder',
     ];
 
     /**
@@ -78,10 +85,10 @@ class NStack implements ProviderInterface
         $this->url = config('nodes.translate.nstack.url', null);
 
         // Set credentials
-        $this->credentials = (array)config('nodes.translate.nstack.credentials', []);
+        $this->credentials = (array) config('nodes.translate.nstack.credentials', []);
 
         // Set default values
-        $this->defaults = (array)config('nodes.translate.nstack.defaults', []);
+        $this->defaults = (array) config('nodes.translate.nstack.defaults', []);
 
         // Set storage
         $this->storage = config('nodes.translate.nstack.storage', 'cache');
@@ -145,7 +152,17 @@ class NStack implements ProviderInterface
         // we'll return the key untranslated instead.
         $translatedValue = $this->translateKey($keyWithSection, $locale);
         if (empty($translatedValue)) {
-            return $key;
+            // Already look up in NStack once
+            if ($this->usedNetwork || $this->failed) {
+                return $key;
+            } // Try to lookup network
+            else {
+                // Clear cache
+                $this->clearFromStorage($locale, $platform);
+
+                // Try again
+                return $this->get($key, $replacements, $locale, $platform);
+            }
         }
 
         return !empty($replacements) ? $this->replaceVariables($translatedValue, $replacements) : $translatedValue;
@@ -214,7 +231,6 @@ class NStack implements ProviderInterface
             return $this->data[$locale];
         }
 
-
         // Add fallback value to locale and platform
         $locale = !empty($locale) ? $locale : $this->defaults['locale'];
         $platform = !empty($platform) ? $platform : $this->defaults['platform'];
@@ -239,6 +255,7 @@ class NStack implements ProviderInterface
             // mark current request as failed
             if (empty($data)) {
                 $this->failed = true;
+
                 return null;
             }
 
@@ -305,14 +322,14 @@ class NStack implements ProviderInterface
 
         // Initiate Guzzle Client
         $client = new Client([
-            'headers' => [
+            'headers'         => [
                 'X-Application-Id' => $credentials['appId'],
-                'X-Rest-Api-Key' => $credentials['restKey'],
-                'Accept-Language' => $locale
+                'X-Rest-Api-Key'   => $credentials['restKey'],
+                'Accept-Language'  => $locale,
             ],
-            'timeout' => 15,
+            'timeout'         => 15,
             'connect_timeout' => 10,
-            'verify' => false
+            'verify'          => false,
         ]);
 
         try {
@@ -320,22 +337,36 @@ class NStack implements ProviderInterface
             $response = $client->get($this->url . sprintf('%s/keys', $platform));
 
             // Decode received content
-            $content = (string)$response->getBody();
+            $content = (string) $response->getBody();
             $content = json_decode(trim($content));
 
             // Make sure we don't have a valid response
             if (empty($content->data)) {
                 $this->failed = true;
+
                 return null;
             }
+
+            // Set network flag
+            $this->usedNetwork;
 
             return $content->data;
         } catch (GuzzleException $e) {
             $this->failed = true;
+
             return null;
         }
     }
 
+    /**
+     * readFromStorage
+     *
+     * @author Casper Rasmussen <cr@nodes.dk>
+     * @access public
+     * @param $locale
+     * @param $platform
+     * @return bool|mixed|string
+     */
     protected function readFromStorage($locale, $platform)
     {
         switch ($this->storage) {
@@ -381,7 +412,8 @@ class NStack implements ProviderInterface
     {
         switch ($this->storage) {
             case 'cache':
-                return \Cache::put('nodes.translate_locale_' . $locale . '_platform_' . $platform, $data, $this->cacheTime);
+                return \Cache::put('nodes.translate_locale_' . $locale . '_platform_' .
+                                   $platform, $data, $this->cacheTime);
                 break;
             case 'publicFolder':
                 // Create path and file name
@@ -397,6 +429,36 @@ class NStack implements ProviderInterface
 
                 // Save file
                 file_put_contents($path . $fileName, json_encode($data));
+
+                break;
+            default :
+                return false;
+        }
+    }
+
+    /**
+     * clearFromStorage
+     *
+     * @author Casper Rasmussen <cr@nodes.dk>
+     * @access
+     * @param $locale
+     * @param $platform
+     * @return bool|mixed|string
+     */
+    protected function clearFromStorage($locale, $platform)
+    {
+        $this->data = [];
+        switch ($this->storage) {
+            case 'cache':
+                \Cache::forget('nodes.translate_locale_' . $locale . '_platform_' . $platform, []);
+                break;
+            case 'publicFolder':
+                // Create path and file name
+                $path = public_path('translate') . DIRECTORY_SEPARATOR . $platform . DIRECTORY_SEPARATOR;
+                $fileName = $locale . '.txt';
+
+                // Delete file
+                delete($path . $fileName);
 
                 break;
             default :
