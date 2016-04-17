@@ -238,7 +238,7 @@ class NStack implements ProviderInterface
         // If our application is in debug mode
         // we want to bypass the caching of translations
         if (env('APP_DEBUG')) {
-//            return $this->data[$locale] = $this->request($locale, $platform);
+            return $this->data[$locale] = $this->request($locale, $platform);
         }
 
         // Retrieve translations from storage.
