@@ -11,7 +11,7 @@ A package for translating text to [Laravel](http://laravel.com/docs).
 [![Watch repository on GitHub](https://img.shields.io/github/watchers/nodes-php/translate.svg?style=social&label=Watch)](https://github.com/nodes-php/translate/watchers)
 [![Fork repository on GitHub](https://img.shields.io/github/forks/nodes-php/translate.svg?style=social&label=Fork)](https://github.com/nodes-php/translate/network)
 
-## Introduction
+## 📝 Introduction
 One thing we at [Nodes](http://nodesagency.com) have been missing in [Laravel](http://laravel.com/docs) is a fast implemented translate providers and extending on it. This package have that.
 
 ## Providers
