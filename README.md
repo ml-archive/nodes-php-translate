@@ -17,7 +17,7 @@ One thing we at [Nodes](http://nodesagency.com) have been missing in [Laravel](h
 ## Providers
  - [NStack](http://nstack.io)
 
-## Installation
+## 📦 Installation
 
 To install this package you will need:
 
@@ -28,7 +28,7 @@ You must then modify your `composer.json` file and run `composer update` to incl
 
 ```
 "require": {
-    "nodes/translate": "^0.1"
+    "nodes/translate": "^1.0"
 }
 ```
 
@@ -37,6 +37,8 @@ Or you can run the composer require command from your terminal.
 ```
 composer require nodes/translate
 ```
+
+## 🔧 Setup
 
 Setup service providers in config/app.php
 
@@ -52,7 +54,7 @@ Setup alias in config/app.php
 
 Copy the config file from vendor/nodes/translate/config to config/nodes
 
-## Usage
+## ⚙ Usage
 
 ###Global function
 
@@ -66,12 +68,12 @@ translate($key, $replacements = [], $locale = null, $platform = null)
 \NodesTranslate::get($key, $replacements = [], $locale = null, $platform = null) (alias)
 ```
 
-## Developers / Maintainers
+## 🏆 Credits
 
-This package is developed and maintained by the PHP team at [Nodes Agency](http://nodesagency.com)
+This package is developed and maintained by the PHP team at [Nodes](http://nodesagency.com)
 
 [![Follow Nodes PHP on Twitter](https://img.shields.io/twitter/follow/nodesphp.svg?style=social)](https://twitter.com/nodesphp) [![Tweet Nodes PHP](https://img.shields.io/twitter/url/http/nodesphp.svg?style=social)](https://twitter.com/nodesphp)
 
-### License
+## 📄 License
 
 This package is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
