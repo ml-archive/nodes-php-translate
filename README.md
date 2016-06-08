@@ -20,7 +20,7 @@ This package makes it easy to create translation providers and use them genericl
 
 Right it only comes with support for:
 
-    - [NStack](http://nstack.io)
+- [NStack](http://nstack.io)
 
 But we very much welcome pull requests with providers to other services.
 
