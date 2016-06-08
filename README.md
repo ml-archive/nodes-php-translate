@@ -1,6 +1,6 @@
 ## Translate
 
-A package to enable usage of translation services rather than local files [Laravel](http://laravel.com/docs).
+A package to enable usage of translation services rather than local files.
 
 [![Total downloads](https://img.shields.io/packagist/dt/nodes/translate.svg)](https://packagist.org/packages/nodes/translate)
 [![Monthly downloads](https://img.shields.io/packagist/dm/nodes/translate.svg)](https://packagist.org/packages/nodes/translate)
