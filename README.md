@@ -19,6 +19,7 @@ requires a developer to change it in a local file and commit and deploy that. Bu
 This package makes it easy to create translation providers and use them genericly in your [Laravel](http://laravel.com/docs/5.2) application.
 
 Right it only comes with support for:
+
     - [NStack](http://nstack.io)
 
 But we very much welcome pull requests with providers to other services.
