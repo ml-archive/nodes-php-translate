@@ -1,6 +1,6 @@
 ## Translate
 
-A package for translating text to [Laravel](http://laravel.com/docs).
+A package to enable usage of translation services rather than local files [Laravel](http://laravel.com/docs).
 
 [![Total downloads](https://img.shields.io/packagist/dt/nodes/translate.svg)](https://packagist.org/packages/nodes/translate)
 [![Monthly downloads](https://img.shields.io/packagist/dm/nodes/translate.svg)](https://packagist.org/packages/nodes/translate)
@@ -12,10 +12,16 @@ A package for translating text to [Laravel](http://laravel.com/docs).
 [![Fork repository on GitHub](https://img.shields.io/github/forks/nodes-php/translate.svg?style=social&label=Fork)](https://github.com/nodes-php/translate/network)
 
 ## 📝 Introduction
-One thing we at [Nodes](http://nodesagency.com) have been missing in [Laravel](http://laravel.com/docs) is a fast implemented translate providers and extending on it. This package have that.
 
-## Providers
- - [NStack](http://nstack.io)
+At [Nodes](http://nodesagency.com) we create a lot of stuff, which needs to be supported in multiple languages. The translation feature that comes out of the box
+requires a developer to change it in a local file and commit and deploy that. But we wanted to use a service where other people - clients, project managers etc. - would be able to manage translations.
+
+This package makes it easy to create translation providers and use them genericly in your [Laravel](http://laravel.com/docs/5.2) application.
+
+Right it only comes with support for:
+    - [NStack](http://nstack.io)
+
+But we very much welcome pull requests with providers to other services.
 
 ## 📦 Installation
 
@@ -26,7 +32,7 @@ To install this package you will need:
 
 You must then modify your `composer.json` file and run `composer update` to include the latest version of the package in your project.
 
-```
+```json
 "require": {
     "nodes/translate": "^1.0"
 }
@@ -34,38 +40,47 @@ You must then modify your `composer.json` file and run `composer update` to incl
 
 Or you can run the composer require command from your terminal.
 
-```
-composer require nodes/translate
+```bash
+composer require nodes/translate:^1.0
 ```
 
 ## 🔧 Setup
 
-Setup service providers in config/app.php
+Setup service provider in `config/app.php`
 
-```
+```php
 Nodes\Translate\ServiceProvider::class
 ```
 
-Setup alias in config/app.php
+Setup alias in `config/app.php`
 
+```php
+'Translate' => Nodes\Translate\Support\Facades\Translate::class
 ```
-'NodesTranslate' => Nodes\Translate\Support\Facades\Translate::class
+
+Publish config files
+
+```bash
+php artisan vendor:publish --provider="Nodes\Translate\ServiceProvider"
 ```
 
-Copy the config file from vendor/nodes/translate/config to config/nodes
+If you want to overwrite any existing config files use the `--force` parameter
 
+```bash
+php artisan vendor:publish --provider="Nodes\Translate\ServiceProvider" --force
+```
 ## ⚙ Usage
 
-###Global function
+### Global method
 
 ```php
 translate($key, $replacements = [], $locale = null, $platform = null)
 ```
 
-###Facade
+### Facade
 
 ```php
-\NodesTranslate::get($key, $replacements = [], $locale = null, $platform = null) (alias)
+Translate::get($key, $replacements = [], $locale = null, $platform = null)
 ```
 
 ## 🏆 Credits

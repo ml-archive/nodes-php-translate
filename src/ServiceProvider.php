@@ -1,7 +1,7 @@
 <?php
 namespace Nodes\Translate;
 
-use Nodes\AbstractServiceProvider;
+use Illuminate\Support\ServiceProvider as IlluminateServiceProvider;
 
 /**
  * Class ServiceProvider
@@ -9,39 +9,22 @@ use Nodes\AbstractServiceProvider;
  *
  * @package Nodes\Translate
  */
-class ServiceProvider extends AbstractServiceProvider
+class ServiceProvider extends IlluminateServiceProvider
 {
     /**
-     * Package name
+     * Boot the service provider
      *
-     * @var string
+     * @author Morten Rugaard <moru@nodes.dk>
+     *
+     * @access public
+     * @return void
      */
-    protected $package = 'translate';
+    public function boot()
+    {
+        parent::boot();
 
-    /**
-     * Facades to install
-     *
-     * @var array
-     */
-    protected $facades = [
-        'NodesTranslate' => \Nodes\Translate\Support\Facades\Translate::class
-    ];
-
-    /**
-     * Array of configs to copy
-     *
-     * @var array
-     */
-    protected $configs = [
-        'config/translate.php' => 'config/nodes/translate.php'
-    ];
-
-    /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var boolean
-     */
-    protected $defer = true;
+        $this->publishGroups();
+    }
 
     /**
      * Register the service provider
@@ -53,10 +36,24 @@ class ServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        parent::register();
-
         $this->registerManager();
         $this->setupBindings();
+    }
+
+    /**
+     * Register publish groups
+     *
+     * @author Morten Rugaard <moru@nodes.dk>
+     *
+     * @access protected
+     * @return void
+     */
+    protected function publishGroups()
+    {
+        // Config files
+        $this->publishes([
+            __DIR__ . '/../config/translate.php' => config_path('nodes/translate.php'),
+        ], 'config');
     }
 
     /**

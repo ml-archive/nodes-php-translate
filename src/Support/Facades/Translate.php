@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Facade;
 
 /**
  * Class Translate
- * @author  Casper Rasmussen <cr@nodes.dk>
  *
  * @package Nodes\Translate\Support\Facades
  */
