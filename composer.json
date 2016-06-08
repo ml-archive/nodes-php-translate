@@ -8,6 +8,7 @@
         "nstack",
         "laravel"
     ],
+    "license": "MIT",
     "authors": [
         {
             "name": "Morten Rugaard",
