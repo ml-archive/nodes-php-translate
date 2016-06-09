@@ -3,7 +3,9 @@ namespace Nodes\Translate\Providers;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Nodes\Exceptions\Exception;
 use Nodes\Translate\Exception\InvalidKeyException;
+use Nodes\Translate\Exception\MissingApplicationException;
 use Nodes\Translate\Exception\UnsupportedStorageException;
 use Nodes\Translate\Exception\MissingCredentialsException;
 
@@ -22,11 +24,23 @@ class NStack implements ProviderInterface
     protected $url = null;
 
     /**
-     * NStack credentials
+     * All NStack credentials
      *
      * @var array
      */
     protected $credentials = [];
+
+    /**
+     * NStack credentials
+     *
+     * @var array
+     */
+    protected $appCredentials = [];
+
+    /**
+     * @var string
+     */
+    protected $application = 'default';
 
     /**
      * Default translate values
@@ -90,6 +104,17 @@ class NStack implements ProviderInterface
         // Set default values
         $this->defaults = (array) config('nodes.translate.nstack.defaults', []);
 
+        // Set application string
+        $this->application = !empty($this->defaults['application']) ? $this->defaults['application'] : $this->application;
+
+        try {
+            // Set application
+            $this->setApplication($this->application);
+        } catch(MissingApplicationException $e) {
+            // Fallback for backwards compatibility
+            $this->appCredentials = $this->credentials;
+        }
+
         // Set storage
         $this->storage = config('nodes.translate.nstack.storage', 'cache');
 
@@ -98,8 +123,29 @@ class NStack implements ProviderInterface
 
         // Check if storage is supported
         if (!in_array($this->storage, $this->supportedStorages)) {
-            throw new UnsupportedStorageException($this->storage . ' is not supported');
+            throw new UnsupportedStorageException($this->storage . ' is not supported', 500);
         }
+    }
+
+    /**
+     * setApplication
+     *
+     * @author Casper Rasmussen <cr@nodes.dk>
+     * @access public
+     * @param $application
+     * @return $this
+     * @throws \Nodes\Exceptions\Exception
+     */
+    public function setApplication($application)
+    {
+        if (empty($this->credentials[$application])) {
+            throw new MissingApplicationException(sprintf('Application [%s] was not in the credentials array (config.nodes.translate)', $application), 500);
+        }
+
+        $this->appCredentials = $this->credentials[$application];
+        $this->application = $application;
+
+        return $this;
     }
 
     /**
@@ -136,7 +182,7 @@ class NStack implements ProviderInterface
 
         if (count($keyWithSection) > 2) {
             // A key can only have one section.
-            throw new InvalidKeyException(sprintf('Invalid structure of translate key: [%s]', $key));
+            throw new InvalidKeyException(sprintf('Invalid structure of translate key: [%s]', $key), 500);
         } elseif (count($keyWithSection) == 1) {
             // No section defined.
             // Prepend "default" section.
@@ -289,7 +335,7 @@ class NStack implements ProviderInterface
 
         // Check credentials
         foreach ($requiredCredentials as $credential) {
-            if (!empty($this->credentials[$credential])) {
+            if (!empty($this->appCredentials[$credential])) {
                 continue;
             }
 
@@ -299,22 +345,21 @@ class NStack implements ProviderInterface
 
         // Missing credentials. Abort.
         if (!empty($missingCredentials)) {
-            throw new MissingCredentialsException(sprintf('Missing credentials: %s', implode($missingCredentials, ', ')));
+            throw new MissingCredentialsException(sprintf('Missing credentials: %s', implode($missingCredentials, ', ')), 500);
         }
 
-        return $this->credentials;
+        return $this->appCredentials;
     }
 
     /**
-     * Request translations from NStack
+     * request
      *
-     * @author Morten Rugaard <moru@nodes.dk>
-     * @date   13-10-2015
-     * @access public
-     * @param  string $locale
-     * @param  string $platform
-     * @return mixed
-     * @throws \Nodes\Translate\Exception\TranslateRequestException
+     * @author Casper Rasmussen <cr@nodes.dk>
+     * @access protected
+     * @param $locale
+     * @param $platform
+     * @return null
+     * @throws \Nodes\Translate\Exception\MissingCredentialsException
      */
     protected function request($locale, $platform)
     {
@@ -413,8 +458,9 @@ class NStack implements ProviderInterface
     {
         switch ($this->storage) {
             case 'cache':
-                return \Cache::put('nodes.translate_locale_' . $locale . '_platform_' .
-                                   $platform, $data, $this->cacheTime);
+                \Cache::put('nodes.translate_locale_' . $locale . '_platform_' .
+                            $platform, $data, $this->cacheTime);
+
                 break;
             case 'publicFolder':
                 // Create path and file name
