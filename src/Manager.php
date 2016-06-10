@@ -2,7 +2,6 @@
 namespace Nodes\Translate;
 
 use Nodes\Translate\Providers\ProviderInterface as TranslateProviderInterface;
-use Nodes\Translate\Providers\ProviderInterface;
 
 /**
  * Class Manager
@@ -52,7 +51,7 @@ class Manager
      * @author Casper Rasmussen <cr@nodes.dk>
      * @access public
      * @param $application
-     * @return ProviderInterface
+     * @return TranslateProviderInterface
      */
     public function setApplication($application)
     {

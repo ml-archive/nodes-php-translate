@@ -3,7 +3,6 @@ namespace Nodes\Translate\Providers;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Nodes\Exceptions\Exception;
 use Nodes\Translate\Exception\InvalidKeyException;
 use Nodes\Translate\Exception\MissingApplicationException;
 use Nodes\Translate\Exception\UnsupportedStorageException;
@@ -110,7 +109,8 @@ class NStack implements ProviderInterface
         try {
             // Set application
             $this->setApplication($this->application);
-        } catch(MissingApplicationException $e) {
+        } catch (MissingApplicationException $e) {
+
             // Fallback for backwards compatibility
             $this->appCredentials = $this->credentials;
         }
@@ -128,11 +128,11 @@ class NStack implements ProviderInterface
     }
 
     /**
-     * setApplication
+     * Set another application then "default" to pull the translate values from
      *
      * @author Casper Rasmussen <cr@nodes.dk>
      * @access public
-     * @param $application
+     * @param string $application
      * @return $this
      * @throws \Nodes\Exceptions\Exception
      */
@@ -352,13 +352,13 @@ class NStack implements ProviderInterface
     }
 
     /**
-     * request
+     * Request translations from NStack
      *
      * @author Casper Rasmussen <cr@nodes.dk>
      * @access protected
-     * @param $locale
-     * @param $platform
-     * @return null
+     * @param string $locale
+     * @param string $platform
+     * @return array|null
      * @throws \Nodes\Translate\Exception\MissingCredentialsException
      */
     protected function request($locale, $platform)

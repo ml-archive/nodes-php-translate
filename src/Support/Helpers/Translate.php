@@ -2,10 +2,10 @@
 
 if (!function_exists('translate')) {
     /**
-     * translate
+     * Translate key
      *
      * @author Casper Rasmussen <cr@nodes.dk>
-     * @param             $key
+     * @param string      $key
      * @param array       $replacements
      * @param string|null $locale
      * @param string|null $platform
@@ -17,14 +17,14 @@ if (!function_exists('translate')) {
     }
 
     /**
-     * translate_app
+     * Translate key for the passed app
      *
      * @author Casper Rasmussen <cr@nodes.dk>
-     * @param string $application
-     * @param        $key
-     * @param array  $replacements
-     * @param string $locale
-     * @param string $platform
+     * @param string      $application
+     * @param string      $key
+     * @param array       $replacements
+     * @param string|null $locale
+     * @param string|null $platform
      * @return string
      */
     function translate_app($application, $key, $replacements = [], $locale = null, $platform = null)
