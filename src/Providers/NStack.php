@@ -3,6 +3,7 @@ namespace Nodes\Translate\Providers;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Nodes\Translate\Exception\InvalidCredentialsException;
 use Nodes\Translate\Exception\InvalidKeyException;
 use Nodes\Translate\Exception\MissingApplicationException;
 use Nodes\Translate\Exception\UnsupportedStorageException;
@@ -360,6 +361,7 @@ class NStack implements ProviderInterface
      * @param string $platform
      * @return array|null
      * @throws \Nodes\Translate\Exception\MissingCredentialsException
+     * @throws \Nodes\Translate\Exception\InvalidCredentialsException
      */
     protected function request($locale, $platform)
     {
@@ -398,6 +400,9 @@ class NStack implements ProviderInterface
 
             return $content->data;
         } catch (GuzzleException $e) {
+            if ($e->getCode() == 403) {
+                throw new InvalidCredentialsException(sprintf('The NStack credentials is invalid for [%s]', $this->application), 500);
+            }
             $this->failed = true;
 
             return null;
