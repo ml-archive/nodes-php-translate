@@ -72,10 +72,12 @@ php artisan vendor:publish --provider="Nodes\Translate\ServiceProvider" --force
 ```
 ## ⚙ Usage
 
-### Global method
+### Global methods
 
 ```php
 translate($key, $replacements = [], $locale = null, $platform = null)
+
+translate_app($app, $key, $replacements = [], $locale = null, $platform = null)
 ```
 
 ### Facade

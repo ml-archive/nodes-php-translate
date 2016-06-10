@@ -60,8 +60,10 @@ return [
         |
         */
         'credentials' => [
-            'appId' => '',
-            'restKey' => '',
+            'default' => [
+                'appId' => '',
+                'restKey' => '',
+            ]
         ],
 
         /*
@@ -74,7 +76,8 @@ return [
         */
         'defaults' => [
             'locale' => 'en-GB',
-            'platform' => 'backend'
+            'platform' => 'backend',
+            'application' => 'default'
         ]
     ]
 ];

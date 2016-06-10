@@ -44,4 +44,17 @@ class Manager
     {
         return $this->provider->get($key, $replacements, $locale, $platform);
     }
+
+    /**
+     * setApplication
+     *
+     * @author Casper Rasmussen <cr@nodes.dk>
+     * @access public
+     * @param $application
+     * @return TranslateProviderInterface
+     */
+    public function setApplication($application)
+    {
+        return $this->provider->setApplication($application);
+    }
 }
