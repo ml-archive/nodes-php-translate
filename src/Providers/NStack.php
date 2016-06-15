@@ -422,7 +422,8 @@ class NStack implements ProviderInterface
     {
         switch ($this->storage) {
             case 'cache':
-                return \Cache::get('nodes.translate_locale_' . $locale . '_platform_' . $platform, []);
+                return \Cache::get('nodes.translate_locale_' . $locale . '_platform_' . $platform . '_application_' .
+                                   $this->application, []);
             case 'publicFolder':
                 // Create path and file name
                 $path = public_path('translate') . DIRECTORY_SEPARATOR . $platform . DIRECTORY_SEPARATOR;
@@ -463,8 +464,8 @@ class NStack implements ProviderInterface
     {
         switch ($this->storage) {
             case 'cache':
-                \Cache::put('nodes.translate_locale_' . $locale . '_platform_' .
-                            $platform, $data, $this->cacheTime);
+                \Cache::put('nodes.translate_locale_' . $locale . '_platform_' . $platform . '_application_' .
+                            $this->application, $data, $this->cacheTime);
 
                 break;
             case 'publicFolder':
@@ -504,7 +505,8 @@ class NStack implements ProviderInterface
         $this->data = [];
         switch ($this->storage) {
             case 'cache':
-                \Cache::forget('nodes.translate_locale_' . $locale . '_platform_' . $platform);
+                \Cache::forget('nodes.translate_locale_' . $locale . '_platform_' . $platform . '_application_' .
+                               $this->application);
                 break;
             case 'publicFolder':
                 // Create path and file name
