@@ -1,8 +1,10 @@
 <?php
 namespace Nodes\Translate\Providers;
 
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Database\Eloquent\Collection;
 use Nodes\Translate\Exception\InvalidCredentialsException;
 use Nodes\Translate\Exception\InvalidKeyException;
 use Nodes\Translate\Exception\MissingApplicationException;
@@ -57,18 +59,9 @@ class NStack implements ProviderInterface
     protected $data = [];
 
     /**
-     * Did our NStack request fail?
-     *
-     * @var boolean
+     * @var \Illuminate\Database\Eloquent\Collection
      */
-    protected $failed = false;
-
-    /**
-     * Did provider look up in NStack in this request
-     *
-     * @var bool
-     */
-    protected $usedNetwork = false;
+    protected $failedCarbons;
 
     /**
      * @var string
@@ -87,6 +80,20 @@ class NStack implements ProviderInterface
      * @var int
      */
     protected $cacheTime;
+
+    /**
+     *To avoid spamming the service, only retry the service if retry is above this count or sec below
+     *
+     * @var int
+     */
+    protected $maxNetworkRetries = 3;
+
+    /**
+     * To avoid spamming the service, only retry the service if retry is above the count above or this sec
+     *
+     * @var int
+     */
+    protected $retryNetworkAfterSec = 10;
 
     /**
      * NStack Constructor
@@ -126,6 +133,8 @@ class NStack implements ProviderInterface
         if (!in_array($this->storage, $this->supportedStorages)) {
             throw new UnsupportedStorageException($this->storage . ' is not supported', 500);
         }
+
+        $this->failedCarbons = new Collection();
     }
 
     /**
@@ -159,10 +168,11 @@ class NStack implements ProviderInterface
      * @param  array  $replacements
      * @param  string $locale
      * @param  string $platform
+     * @param  boolean $clearCache
      * @return string
      * @throws \Nodes\Translate\Exception\InvalidKeyException
      */
-    public function get($key, $replacements = [], $locale = null, $platform = null)
+    public function get($key, $replacements = [], $locale = null, $platform = null, $clearCache = false)
     {
         // We need to have a locale set for the data structure
         if (empty($locale) || !is_string($locale)) {
@@ -170,12 +180,19 @@ class NStack implements ProviderInterface
         }
 
         // Load translations
-        $translations = !$this->failed ? $this->loadTranslations($locale, $platform) : null;
+        $translations = $this->shouldTryAgain() ? $this->loadTranslations($locale, $platform) : null;
 
         // If we for some reason has been unable to load translations
         // we'll - as a fallback - return the key untranslated.
         if (empty($translations)) {
-            return $key;
+            if ($this->shouldTryAgain()) {
+                sleep(1);
+
+                // Try again
+                return $this->get($key, $replacements, $locale, $platform);
+            } else {
+                return $key;
+            }
         }
 
         // Split key on "." to support sections
@@ -199,8 +216,8 @@ class NStack implements ProviderInterface
         // we'll return the key untranslated instead.
         $translatedValue = $this->translateKey($keyWithSection, $locale);
         if (empty($translatedValue)) {
-            // Already look up in NStack once
-            if ($this->usedNetwork || $this->failed) {
+            // Already look up in NStack once, the key will not be found next time
+            if ($clearCache) {
                 return $key;
             } // Try to lookup network
             else {
@@ -208,7 +225,7 @@ class NStack implements ProviderInterface
                 $this->clearFromStorage($locale, $platform);
 
                 // Try again
-                return $this->get($key, $replacements, $locale, $platform);
+                return $this->get($key, $replacements, $locale, $platform, true);
             }
         }
 
@@ -302,8 +319,6 @@ class NStack implements ProviderInterface
             // If we didn't receive any data
             // mark current request as failed
             if (empty($data)) {
-                $this->failed = true;
-
                 return null;
             }
 
@@ -390,20 +405,18 @@ class NStack implements ProviderInterface
 
             // Make sure we don't have a valid response
             if (empty($content->data)) {
-                $this->failed = true;
+                $this->performFail();
 
                 return null;
             }
-
-            // Set network flag
-            $this->usedNetwork = true;
 
             return $content->data;
         } catch (GuzzleException $e) {
             if ($e->getCode() == 403) {
                 throw new InvalidCredentialsException(sprintf('The NStack credentials is invalid for [%s]', $this->application), 500);
             }
-            $this->failed = true;
+
+            $this->performFail();
 
             return null;
         }
@@ -517,6 +530,45 @@ class NStack implements ProviderInterface
                 break;
             default :
                 return false;
+        }
+    }
+
+    /**
+     * shouldTryAgain
+     *
+     * @author Casper Rasmussen <cr@nodes.dk>
+     * @access private
+     * @return bool
+     */
+    private function shouldTryAgain()
+    {
+        if ($this->failedCarbons->count() < $this->maxNetworkRetries) {
+            return true;
+        }
+
+        /** @var Carbon $carbon */
+        $carbon = $this->failedCarbons->first();
+
+        if ($carbon->diffInSeconds(Carbon::now()) >= $this->retryNetworkAfterSec) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * performFail
+     *
+     * @author Casper Rasmussen <cr@nodes.dk>
+     * @access private
+     * @return void
+     */
+    private function performFail()
+    {
+        $this->failedCarbons->prepend(new Carbon());
+
+        if ($this->failedCarbons->count() > 3) {
+            $this->failedCarbons->pop();
         }
     }
 }
