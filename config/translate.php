@@ -1,4 +1,5 @@
 <?php
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -63,7 +64,7 @@ return [
             'default' => [
                 'appId' => '',
                 'restKey' => '',
-            ]
+            ],
         ],
 
         /*
@@ -77,7 +78,7 @@ return [
         'defaults' => [
             'locale' => 'en-GB',
             'platform' => 'backend',
-            'application' => 'default'
-        ]
-    ]
+            'application' => 'default',
+        ],
+    ],
 ];

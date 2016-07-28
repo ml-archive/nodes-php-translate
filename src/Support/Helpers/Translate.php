@@ -1,8 +1,8 @@
 <?php
 
-if (!function_exists('translate')) {
+if (! function_exists('translate')) {
     /**
-     * Translate key
+     * Translate key.
      *
      * @author Casper Rasmussen <cr@nodes.dk>
      * @param string      $key
@@ -17,7 +17,7 @@ if (!function_exists('translate')) {
     }
 
     /**
-     * Translate key for the passed app
+     * Translate key for the passed app.
      *
      * @author Casper Rasmussen <cr@nodes.dk>
      * @param string      $application

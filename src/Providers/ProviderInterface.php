@@ -1,20 +1,19 @@
 <?php
+
 namespace Nodes\Translate\Providers;
 
 /**
- * Interface ProviderInterface
+ * Interface ProviderInterface.
  *
  * @interface
- * @package Nodes\Translate
  */
 interface ProviderInterface
 {
     /**
-     * Translate key
+     * Translate key.
      *
      * @author Morten Rugaard <moru@nodes.dk>
      * @date   13-10-2015
-     * @access public
      * @param  string $key
      * @param  array  $replacements
      * @param  string $locale
@@ -26,10 +25,9 @@ interface ProviderInterface
     public function get($key, $replacements = [], $locale = null, $platform = null);
 
     /**
-     * setApplication
+     * setApplication.
      *
      * @author Casper Rasmussen <cr@nodes.dk>
-     * @access public
      * @param $application
      * @return ProviderInterface
      * @throws \Nodes\Translate\Exception\MissingApplicationException

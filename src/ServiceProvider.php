@@ -1,22 +1,20 @@
 <?php
+
 namespace Nodes\Translate;
 
 use Illuminate\Support\ServiceProvider as IlluminateServiceProvider;
 
 /**
- * Class ServiceProvider
+ * Class ServiceProvider.
  * @author  Casper Rasmussen <cr@nodes.dk>
- *
- * @package Nodes\Translate
  */
 class ServiceProvider extends IlluminateServiceProvider
 {
     /**
-     * Boot the service provider
+     * Boot the service provider.
      *
      * @author Morten Rugaard <moru@nodes.dk>
      *
-     * @access public
      * @return void
      */
     public function boot()
@@ -27,11 +25,10 @@ class ServiceProvider extends IlluminateServiceProvider
     }
 
     /**
-     * Register the service provider
+     * Register the service provider.
      *
      * @author Casper Rasmussen <cr@nodes.dk>
      *
-     * @access public
      * @return void
      */
     public function register()
@@ -41,26 +38,24 @@ class ServiceProvider extends IlluminateServiceProvider
     }
 
     /**
-     * Register publish groups
+     * Register publish groups.
      *
      * @author Morten Rugaard <moru@nodes.dk>
      *
-     * @access protected
      * @return void
      */
     protected function publishGroups()
     {
         // Config files
         $this->publishes([
-            __DIR__ . '/../config/translate.php' => config_path('nodes/translate.php'),
+            __DIR__.'/../config/translate.php' => config_path('nodes/translate.php'),
         ], 'config');
     }
 
     /**
-     * Setup container binding
+     * Setup container binding.
      *
      * @author Morten Rugaard <moru@nodes.dk>
-     * @access protected
      * @return void
      */
     protected function setupBindings()
@@ -71,17 +66,17 @@ class ServiceProvider extends IlluminateServiceProvider
     }
 
     /**
-     * Register Translate Manager
+     * Register Translate Manager.
      *
      * @author Casper Rasmussen <cr@nodes.dk>
      *
-     * @access public
      * @return void
      */
     public function registerManager()
     {
         $this->app->singleton('nodes.translate', function ($app) {
             $provider = call_user_func(config('nodes.translate.provider'), $app);
+
             return new Manager($provider);
         });
     }

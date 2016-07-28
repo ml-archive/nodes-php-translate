@@ -1,12 +1,11 @@
 <?php
+
 namespace Nodes\Translate\Exception;
 
 use Nodes\Exceptions\Exception;
 
 /**
- * Class InvalidCredentialsException
- *
- * @package Nodes\Translate\Exception
+ * Class InvalidCredentialsException.
  */
 class InvalidCredentialsException extends Exception
 {
