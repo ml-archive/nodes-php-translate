@@ -1,26 +1,24 @@
 <?php
+
 namespace Nodes\Translate;
 
 use Nodes\Translate\Providers\ProviderInterface as TranslateProviderInterface;
 
 /**
- * Class Manager
- *
- * @package Nodes\Translate
+ * Class Manager.
  */
 class Manager
 {
     /**
-     * Translate provider
+     * Translate provider.
      *
      * @var \Nodes\Translate\Providers\ProviderInterface
      */
     protected $provider;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @access public
      * @param  \Nodes\Translate\Providers\ProviderInterface $provider
      */
     public function __construct(TranslateProviderInterface $provider)
@@ -29,11 +27,10 @@ class Manager
     }
 
     /**
-     * Retrieve translated string
+     * Retrieve translated string.
      *
      * @author Morten Rugaard <moru@nodes.dk>
      * @date   13-10-2015
-     * @access public
      * @param  string $key
      * @param  array  $replacements
      * @param  string $locale
@@ -46,10 +43,9 @@ class Manager
     }
 
     /**
-     * setApplication
+     * setApplication.
      *
      * @author Casper Rasmussen <cr@nodes.dk>
-     * @access public
      * @param $application
      * @return TranslateProviderInterface
      */
