@@ -10,6 +10,7 @@ A package to enable usage of translation services rather than local files.
 [![Star repository on GitHub](https://img.shields.io/github/stars/nodes-php/translate.svg?style=social&label=Star)](https://github.com/nodes-php/translate/stargazers)
 [![Watch repository on GitHub](https://img.shields.io/github/watchers/nodes-php/translate.svg?style=social&label=Watch)](https://github.com/nodes-php/translate/watchers)
 [![Fork repository on GitHub](https://img.shields.io/github/forks/nodes-php/translate.svg?style=social&label=Fork)](https://github.com/nodes-php/translate/network)
+[![StyleCI](https://styleci.io/repos/45786079/shield)](https://styleci.io/repos/45786079)
 
 ## 📝 Introduction
 
