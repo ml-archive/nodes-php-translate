@@ -50,6 +50,9 @@ class NStack implements ProviderInterface
      */
     protected $defaults = [];
 
+    /** @var bool fail hard or use default */
+    protected $useDefaultsInsteadOfThrowing = false;
+
     /**
      * Translate data.
      *
@@ -108,6 +111,9 @@ class NStack implements ProviderInterface
         // Set default values
         $this->defaults = (array) config('nodes.translate.nstack.defaults', []);
 
+        // Set useDefaultsInsteadOfThrowing
+        $this->useDefaultsInsteadOfThrowing = (bool) config('nodes.translate.nstack.useDefaultsInsteadOfThrowing', false);
+
         // Set application string
         $this->application = ! empty($this->defaults['application']) ? $this->defaults['application'] : $this->application;
 
@@ -145,7 +151,12 @@ class NStack implements ProviderInterface
     public function setApplication($application)
     {
         if (empty($this->credentials[$application])) {
-            throw new MissingApplicationException(sprintf('Application [%s] was not in the credentials array (config.nodes.translate)', $application), 500);
+            if($this->useDefaultsInsteadOfThrowing) {
+                // Set default
+                return $this->setApplication($this->application);
+            } else {
+                throw new MissingApplicationException(sprintf('Application [%s] was not in the credentials array (config.nodes.translate)', $application), 500);
+            }
         }
 
         $this->appCredentials = $this->credentials[$application];
