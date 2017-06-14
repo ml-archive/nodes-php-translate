@@ -80,5 +80,16 @@ return [
             'platform' => 'backend',
             'application' => 'default',
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Use default instead of throwing
+        |--------------------------------------------------------------------------
+        |
+        | If using a credentials / app which does not exist, translate will throw,
+        | By setting this config to true, it will just use the default s
+        |
+        */
+        'useDefaultsInsteadOfThrowing' => false
     ],
 ];
