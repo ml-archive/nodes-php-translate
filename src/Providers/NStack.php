@@ -162,6 +162,7 @@ class NStack implements ProviderInterface
         $this->appCredentials = $this->credentials[$application];
         $this->application = $application;
 
+
         return $this;
     }
 
@@ -234,7 +235,6 @@ class NStack implements ProviderInterface
                 return $this->get($key, $replacements, $locale, $platform, true);
             }
         }
-
         return ! empty($replacements) ? $this->replaceVariables($translatedValue, $replacements) : $translatedValue;
     }
 
@@ -249,17 +249,17 @@ class NStack implements ProviderInterface
     protected function translateKey(array $keyWithSection, $locale)
     {
         // Check if section exists within our translations
-        if (! array_key_exists($keyWithSection[0], $this->data[$locale])) {
+        if (! array_key_exists($keyWithSection[0], $this->data[$locale.$this->application])) {
             return;
         }
 
         // Check if key exists within section
-        if (! array_key_exists($keyWithSection[1], $this->data[$locale]->{$keyWithSection[0]})) {
+        if (! array_key_exists($keyWithSection[1], $this->data[$locale.$this->application]->{$keyWithSection[0]})) {
             return;
         }
 
         // Return translated value
-        return $this->data[$locale]->{$keyWithSection[0]}->{$keyWithSection[1]};
+        return $this->data[$locale.$this->application]->{$keyWithSection[0]}->{$keyWithSection[1]};
     }
 
     /**
@@ -294,8 +294,8 @@ class NStack implements ProviderInterface
     {
         // We've already loaded translations
         // so we'll just return the same data again.
-        if (! empty($this->data[$locale])) {
-            return $this->data[$locale];
+        if (! empty($this->data[$locale.$this->application])) {
+            return $this->data[$locale.$this->application];
         }
 
         // Add fallback value to locale and platform
@@ -305,7 +305,7 @@ class NStack implements ProviderInterface
         // If our application is in debug mode
         // we want to bypass the caching of translations
         if (env('APP_DEBUG')) {
-            return $this->data[$locale] = $this->request($locale, $platform);
+            return $this->data[$locale.$this->application] = $this->request($locale, $platform);
         }
 
         // Retrieve translations from storage.
@@ -330,7 +330,7 @@ class NStack implements ProviderInterface
         }
 
         // Set and return found translations
-        $this->data[$locale] = $data;
+        $this->data[$locale.$this->application] = $data;
 
         return $data;
     }
