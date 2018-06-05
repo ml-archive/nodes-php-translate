@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Nodes\Translate\Exception\InvalidCredentialsException;
 use Nodes\Translate\Exception\InvalidKeyException;
 use Nodes\Translate\Exception\MissingApplicationException;
+use Nodes\Translate\Exception\TranslationWasNotFoundException;
 use Nodes\Translate\Exception\UnsupportedStorageException;
 use Nodes\Translate\Exception\MissingCredentialsException;
 
@@ -106,16 +107,17 @@ class NStack implements ProviderInterface
         $this->url = config('nodes.translate.nstack.url', null);
 
         // Set credentials
-        $this->credentials = (array) config('nodes.translate.nstack.credentials', []);
+        $this->credentials = (array)config('nodes.translate.nstack.credentials', []);
 
         // Set default values
-        $this->defaults = (array) config('nodes.translate.nstack.defaults', []);
+        $this->defaults = (array)config('nodes.translate.nstack.defaults', []);
 
         // Set useDefaultsInsteadOfThrowing
-        $this->useDefaultsInsteadOfThrowing = (bool) config('nodes.translate.nstack.useDefaultsInsteadOfThrowing', false);
+        $this->useDefaultsInsteadOfThrowing = (bool)config('nodes.translate.nstack.useDefaultsInsteadOfThrowing',
+            false);
 
         // Set application string
-        $this->application = ! empty($this->defaults['application']) ? $this->defaults['application'] : $this->application;
+        $this->application = !empty($this->defaults['application']) ? $this->defaults['application'] : $this->application;
 
         try {
             // Set application
@@ -133,8 +135,8 @@ class NStack implements ProviderInterface
         $this->cacheTime = config('nodes.translate.nstack.lifetime', 600);
 
         // Check if storage is supported
-        if (! in_array($this->storage, $this->supportedStorages)) {
-            throw new UnsupportedStorageException($this->storage.' is not supported', 500);
+        if (!in_array($this->storage, $this->supportedStorages)) {
+            throw new UnsupportedStorageException($this->storage . ' is not supported', 500);
         }
 
         $this->failedCarbons = new Collection();
@@ -151,38 +153,38 @@ class NStack implements ProviderInterface
     public function setApplication($application)
     {
         if (empty($this->credentials[$application])) {
-            if($this->useDefaultsInsteadOfThrowing) {
+            if ($this->useDefaultsInsteadOfThrowing) {
                 // Set default
                 return $this->setApplication($this->application);
             } else {
-                throw new MissingApplicationException(sprintf('Application [%s] was not in the credentials array (config.nodes.translate)', $application), 500);
+                throw new MissingApplicationException(sprintf('Application [%s] was not in the credentials array (config.nodes.translate)',
+                    $application), 500);
             }
         }
 
         $this->appCredentials = $this->credentials[$application];
         $this->application = $application;
 
-
         return $this;
     }
 
     /**
-     * Translate key.
+     * getOrFail
      *
-     * @author Morten Rugaard <moru@nodes.dk>
-     * @date   13-10-2015
-     * @param  string $key
-     * @param  array  $replacements
-     * @param  string $locale
-     * @param  string $platform
-     * @param  bool $clearCache
+     * @author Casper Rasmussen <cr@nodes.dk>
+     * @access public
+     * @param       $key
+     * @param array $replacements
+     * @param null  $locale
+     * @param null  $platform
      * @return string
      * @throws \Nodes\Translate\Exception\InvalidKeyException
+     * @throws \Nodes\Translate\Exception\TranslationWasNotFoundException
      */
-    public function get($key, $replacements = [], $locale = null, $platform = null, $clearCache = false)
+    public function getOrFail($key, $replacements = [], $locale = null, $platform = null)
     {
         // We need to have a locale set for the data structure
-        if (empty($locale) || ! is_string($locale)) {
+        if (empty($locale) || !is_string($locale)) {
             $locale = 'default';
         }
 
@@ -198,7 +200,7 @@ class NStack implements ProviderInterface
                 // Try again
                 return $this->get($key, $replacements, $locale, $platform);
             } else {
-                return $key;
+                throw new TranslationWasNotFoundException('Could not load translation');
             }
         }
 
@@ -225,7 +227,7 @@ class NStack implements ProviderInterface
         if (empty($translatedValue)) {
             // Already look up in NStack once, the key will not be found next time
             if ($clearCache) {
-                return $key;
+                throw new TranslationWasNotFoundException(sprintf('Key %s was not found in translation', $key));
             } // Try to lookup network
             else {
                 // Clear cache
@@ -235,7 +237,52 @@ class NStack implements ProviderInterface
                 return $this->get($key, $replacements, $locale, $platform, true);
             }
         }
-        return ! empty($replacements) ? $this->replaceVariables($translatedValue, $replacements) : $translatedValue;
+
+        return !empty($replacements) ? $this->replaceVariables($translatedValue, $replacements) : $translatedValue;
+    }
+
+    /**
+     * Translate key.
+     *
+     * @author Morten Rugaard <moru@nodes.dk>
+     * @date   13-10-2015
+     * @param  string $key
+     * @param  array  $replacements
+     * @param  string $locale
+     * @param  string $platform
+     * @param  bool   $clearCache
+     * @return string
+     * @throws \Nodes\Translate\Exception\InvalidKeyException
+     */
+    public function get($key, $replacements = [], $locale = null, $platform = null, $clearCache = false)
+    {
+        try {
+            return $this->getOrFail($key, $replacements, $locale, $platform, $clearCache);
+        } catch (TranslationWasNotFoundException $e) {
+            return $key;
+        }
+    }
+
+    /**
+     * getWithFallback
+     *
+     * @author Casper Rasmussen <cr@nodes.dk>
+     * @access public
+     * @param string $key
+     * @param string $fallback
+     * @param array  $replacements
+     * @param null   $locale
+     * @param null   $platform
+     * @return string
+     * @throws \Nodes\Translate\Exception\InvalidKeyException
+     */
+    public function getWithFallback($key, $fallback, $replacements = [], $locale = null, $platform = null)
+    {
+        try {
+            return $this->getOrFail($key, $replacements, $locale, $platform, $clearCache);
+        } catch (TranslationWasNotFoundException $e) {
+            return $fallback;
+        }
     }
 
     /**
@@ -249,17 +296,17 @@ class NStack implements ProviderInterface
     protected function translateKey(array $keyWithSection, $locale)
     {
         // Check if section exists within our translations
-        if (! array_key_exists($keyWithSection[0], $this->data[$locale.$this->application])) {
+        if (!array_key_exists($keyWithSection[0], $this->data[$locale . $this->application])) {
             return;
         }
 
         // Check if key exists within section
-        if (! array_key_exists($keyWithSection[1], $this->data[$locale.$this->application]->{$keyWithSection[0]})) {
+        if (!array_key_exists($keyWithSection[1], $this->data[$locale . $this->application]->{$keyWithSection[0]})) {
             return;
         }
 
         // Return translated value
-        return $this->data[$locale.$this->application]->{$keyWithSection[0]}->{$keyWithSection[1]};
+        return $this->data[$locale . $this->application]->{$keyWithSection[0]}->{$keyWithSection[1]};
     }
 
     /**
@@ -275,7 +322,7 @@ class NStack implements ProviderInterface
     {
         // Replace variables with a given value
         foreach ($replacements as $key => $value) {
-            $string = str_replace('{'.$key.'}', $value, $string);
+            $string = str_replace('{' . $key . '}', $value, $string);
         }
 
         return $string;
@@ -294,18 +341,18 @@ class NStack implements ProviderInterface
     {
         // We've already loaded translations
         // so we'll just return the same data again.
-        if (! empty($this->data[$locale.$this->application])) {
-            return $this->data[$locale.$this->application];
+        if (!empty($this->data[$locale . $this->application])) {
+            return $this->data[$locale . $this->application];
         }
 
         // Add fallback value to locale and platform
-        $locale = ! empty($locale) ? $locale : $this->defaults['locale'];
-        $platform = ! empty($platform) ? $platform : $this->defaults['platform'];
+        $locale = !empty($locale) ? $locale : $this->defaults['locale'];
+        $platform = !empty($platform) ? $platform : $this->defaults['platform'];
 
         // If our application is in debug mode
         // we want to bypass the caching of translations
         if (env('APP_DEBUG')) {
-            return $this->data[$locale.$this->application] = $this->request($locale, $platform);
+            return $this->data[$locale . $this->application] = $this->request($locale, $platform);
         }
 
         // Retrieve translations from storage.
@@ -330,7 +377,7 @@ class NStack implements ProviderInterface
         }
 
         // Set and return found translations
-        $this->data[$locale.$this->application] = $data;
+        $this->data[$locale . $this->application] = $data;
 
         return $data;
     }
@@ -353,7 +400,7 @@ class NStack implements ProviderInterface
 
         // Check credentials
         foreach ($requiredCredentials as $credential) {
-            if (! empty($this->appCredentials[$credential])) {
+            if (!empty($this->appCredentials[$credential])) {
                 continue;
             }
 
@@ -362,8 +409,9 @@ class NStack implements ProviderInterface
         }
 
         // Missing credentials. Abort.
-        if (! empty($missingCredentials)) {
-            throw new MissingCredentialsException(sprintf('Missing credentials: %s', implode($missingCredentials, ', ')), 500);
+        if (!empty($missingCredentials)) {
+            throw new MissingCredentialsException(sprintf('Missing credentials: %s',
+                implode($missingCredentials, ', ')), 500);
         }
 
         return $this->appCredentials;
@@ -398,10 +446,10 @@ class NStack implements ProviderInterface
 
         try {
             // Send request
-            $response = $client->get($this->url.sprintf('%s/keys', $platform));
+            $response = $client->get($this->url . sprintf('%s/keys', $platform));
 
             // Decode received content
-            $content = (string) $response->getBody();
+            $content = (string)$response->getBody();
             $content = json_decode(trim($content));
 
             // Make sure we don't have a valid response
@@ -414,7 +462,8 @@ class NStack implements ProviderInterface
             return $content->data;
         } catch (GuzzleException $e) {
             if ($e->getCode() == 403) {
-                throw new InvalidCredentialsException(sprintf('The NStack credentials is invalid for [%s]', $this->application), 500);
+                throw new InvalidCredentialsException(sprintf('The NStack credentials is invalid for [%s]',
+                    $this->application), 500);
             }
 
             $this->performFail();
@@ -435,18 +484,18 @@ class NStack implements ProviderInterface
     {
         switch ($this->storage) {
             case 'cache':
-                return \Cache::get('nodes.translate_locale_'.$locale.'_platform_'.$platform.'_application_'.
+                return \Cache::get('nodes.translate_locale_' . $locale . '_platform_' . $platform . '_application_' .
                                    $this->application, []);
             case 'publicFolder':
                 // Create path and file name
-                $path = public_path('translate').DIRECTORY_SEPARATOR.$platform.DIRECTORY_SEPARATOR;
-                $fileName = $locale.'.txt';
+                $path = public_path('translate') . DIRECTORY_SEPARATOR . $platform . DIRECTORY_SEPARATOR;
+                $fileName = $locale . '.txt';
 
                 // Try to stream
-                $data = @file_get_contents($path.$fileName);
+                $data = @file_get_contents($path . $fileName);
 
                 // Fail if empty
-                if (! $data) {
+                if (!$data) {
                     return false;
                 }
 
@@ -477,24 +526,24 @@ class NStack implements ProviderInterface
     {
         switch ($this->storage) {
             case 'cache':
-                \Cache::put('nodes.translate_locale_'.$locale.'_platform_'.$platform.'_application_'.
+                \Cache::put('nodes.translate_locale_' . $locale . '_platform_' . $platform . '_application_' .
                             $this->application, $data, $this->cacheTime);
 
                 break;
             case 'publicFolder':
                 // Create path and file name
-                $path = public_path('translate').DIRECTORY_SEPARATOR.$platform.DIRECTORY_SEPARATOR;
-                $fileName = $locale.'.txt';
+                $path = public_path('translate') . DIRECTORY_SEPARATOR . $platform . DIRECTORY_SEPARATOR;
+                $fileName = $locale . '.txt';
 
                 // Create folder if it does not exist
-                if (! file_exists($path)) {
+                if (!file_exists($path)) {
                     mkdir($path, 0777, true);
                 }
 
                 $data->STORED_UNIX = time();
 
                 // Save file
-                file_put_contents($path.$fileName, json_encode($data));
+                file_put_contents($path . $fileName, json_encode($data));
 
                 break;
             default:
@@ -512,21 +561,21 @@ class NStack implements ProviderInterface
      */
     protected function clearFromStorage($locale, $platform)
     {
-        $platform = ! empty($platform) ? $platform : $this->defaults['platform'];
+        $platform = !empty($platform) ? $platform : $this->defaults['platform'];
 
         $this->data = [];
         switch ($this->storage) {
             case 'cache':
-                \Cache::forget('nodes.translate_locale_'.$locale.'_platform_'.$platform.'_application_'.
+                \Cache::forget('nodes.translate_locale_' . $locale . '_platform_' . $platform . '_application_' .
                                $this->application);
                 break;
             case 'publicFolder':
                 // Create path and file name
-                $path = public_path('translate').DIRECTORY_SEPARATOR.$platform.DIRECTORY_SEPARATOR;
-                $fileName = $locale.'.txt';
+                $path = public_path('translate') . DIRECTORY_SEPARATOR . $platform . DIRECTORY_SEPARATOR;
+                $fileName = $locale . '.txt';
 
                 // Delete file
-                delete($path.$fileName);
+                delete($path . $fileName);
 
                 break;
             default:
