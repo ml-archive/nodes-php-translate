@@ -79,12 +79,14 @@ php artisan vendor:publish --provider="Nodes\Translate\ServiceProvider" --force
 translate($key, $replacements = [], $locale = null, $platform = null)
 
 translate_app($app, $key, $replacements = [], $locale = null, $platform = null)
-```
 
-### Facade
+translate_or_fail($key, array $replacements = [], $locale = null, $platform = null)
 
-```php
-Translate::get($key, $replacements = [], $locale = null, $platform = null)
+translate_app_or_fail($application, $key, $replacements = [], $locale = null, $platform = null)
+
+translate_with_fallback($key, $fallback, array $replacements = [], $locale = null, $platform = null)
+
+translate_app_with_fallback($application, $key, $fallback, $replacements = [], $locale = null, $platform = null)
 ```
 
 ## 🏆 Credits
