@@ -177,11 +177,12 @@ class NStack implements ProviderInterface
      * @param array $replacements
      * @param null  $locale
      * @param null  $platform
+     * @param false $clearCache
      * @return string
      * @throws \Nodes\Translate\Exception\InvalidKeyException
      * @throws \Nodes\Translate\Exception\TranslationWasNotFoundException
      */
-    public function getOrFail($key, $replacements = [], $locale = null, $platform = null)
+    public function getOrFail($key, $replacements = [], $locale = null, $platform = null, $clearCache = false)
     {
         // We need to have a locale set for the data structure
         if (empty($locale) || !is_string($locale)) {
@@ -198,7 +199,7 @@ class NStack implements ProviderInterface
                 sleep(1);
 
                 // Try again
-                return $this->get($key, $replacements, $locale, $platform);
+                return $this->getOrFail($key, $replacements, $locale, $platform);
             } else {
                 throw new TranslationWasNotFoundException('Could not load translation');
             }
@@ -234,7 +235,7 @@ class NStack implements ProviderInterface
                 $this->clearFromStorage($locale, $platform);
 
                 // Try again
-                return $this->get($key, $replacements, $locale, $platform, true);
+                return $this->getOrFail($key, $replacements, $locale, $platform, true);
             }
         }
 
