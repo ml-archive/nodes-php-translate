@@ -201,7 +201,7 @@ class NStack implements ProviderInterface
                 // Try again
                 return $this->getOrFail($key, $replacements, $locale, $platform);
             } else {
-                throw new TranslationWasNotFoundException('Could not load translation');
+                throw new TranslationWasNotFoundException('Could not load translation', 500);
             }
         }
 
@@ -228,7 +228,7 @@ class NStack implements ProviderInterface
         if (empty($translatedValue)) {
             // Already look up in NStack once, the key will not be found next time
             if ($clearCache) {
-                throw new TranslationWasNotFoundException(sprintf('Key %s was not found in translation', $key));
+                throw new TranslationWasNotFoundException(sprintf('Key %s was not found in translation', $key), 500);
             } // Try to lookup network
             else {
                 // Clear cache
