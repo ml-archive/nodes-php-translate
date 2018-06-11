@@ -91,7 +91,7 @@ translate_app_with_fallback($application, $key, $fallback, $replacements = [], $
 
 ### Fallbacks
 
-There is several ways to handle fallbacks, if key is either missing of NStack is down and cache is invalid
+There are two ways to handle fallbacks, if key is either missing or NStack is down and cache is invalid
 
 1) By default the translate() func will use laravel's trans('nstack.' . key) as fallback, that means you can download the nstack keys and reformat them to a php array in insert the file into `/ressources/lang/en/nstack.php`
 
