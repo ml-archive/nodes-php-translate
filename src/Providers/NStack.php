@@ -260,6 +260,20 @@ class NStack implements ProviderInterface
         try {
             return $this->getOrFail($key, $replacements, $locale, $platform, $clearCache);
         } catch (TranslationWasNotFoundException $e) {
+
+            // Try to use laravel trans
+            try {
+                $transKey = 'nstack.' . $key;
+                $fallback = trans($transKey, [], $locale);
+
+                if(!empty($fallback) && $transKey != $fallback) {
+                    return $this->replaceVariables($fallback, $replacements);
+                }
+
+            } catch (\Throwable $e) {
+                // Do nothing
+            }
+
             return $key;
         }
     }
@@ -282,7 +296,8 @@ class NStack implements ProviderInterface
         try {
             return $this->getOrFail($key, $replacements, $locale, $platform, $clearCache);
         } catch (TranslationWasNotFoundException $e) {
-            return $fallback;
+
+            return $this->replaceVariables($fallback, $replacements);
         }
     }
 
