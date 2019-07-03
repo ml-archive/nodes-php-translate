@@ -47,6 +47,7 @@ composer require nodes/translate:^1.0
 ```
 
 ## 🔧 Setup
+> In Laravel 5.5 and above, service providers and aliases are [automatically registered](https://laravel.com/docs/5.5/packages#package-discovery). If you're using Laravel 5.5 or above, skip ahead directly to *Publish config files*.
 
 Setup service provider in `config/app.php`
 
